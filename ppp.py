@@ -54,9 +54,9 @@ def mutable_args(func_def):
                     r"\[.*\]|\{.*\}",
                     'ppp_lib.mutableargs.PPP_Sentinel_Obj(\'{0}\')'.format(arg_name),
                     arg_default_val)
-                new_args.append('{0} = {1}'.format(arg_name, arg_val))
+                new_args.append('{0}={1}'.format(arg_name, arg_val))
             else:
-                new_args.append('{0} = {1}'.format(arg_name, arg_default_val))
+                new_args.append('{0}={1}'.format(arg_name, arg_default_val))
         else:
             new_args.append(arg_parts[0])
 
