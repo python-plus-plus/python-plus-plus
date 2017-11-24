@@ -1,8 +1,12 @@
 def foo(arg=[], arg2=[1]):
-	arg.append(1)
-	arg2.append(2)
-	print(arg, arg2)
+    arg.append(1)
+    arg2.append(2)
+    print(arg, arg2)
 
 foo()
 foo()
 foo([2, 3, 4, 5], [1, 2])
+
+x = [[0] * 2] * 3
+x[0][0] = 1
+print(x)
