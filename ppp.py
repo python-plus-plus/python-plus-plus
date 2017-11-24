@@ -3,13 +3,13 @@ import re
 import subprocess
 import sys
 
-
+# TODO: make ppp_lib globally available as an installable package
 ppp_lib_imports = "import ppp_lib\n"
 
 def strip_comments(s):
     return re.sub(r"^[\t ]*\#.*$", '', s, flags=re.MULTILINE)
 
-def increment(str, in_func):
+def increment(str):
     return re.sub(r"(\w+)\+\+", r"ppp_lib.incdec.PostIncrement('\1', locals())", str)
 
 def mutable_args(func_def):
@@ -22,12 +22,14 @@ def tail_call(func_def):
     pass
 
 if __name__ == '__main__':
+    # TODO: handle additional command line args to .py file
     if len(sys.argv) != 2:
         print('invalid args')
         sys.exit(-1)
 
     input_file_path = os.path.abspath(sys.argv[1])
 
+    # do some basic sanity checks
     if (not os.path.isfile(input_file_path)):
         print('invalid file')
         sys.exit(-1)
@@ -50,8 +52,11 @@ if __name__ == '__main__':
 
     # start transforms
     ppp_source = strip_comments(ppp_source)
-    # TODO: fix in/out of function detection
-    ppp_source = increment(ppp_source, False)
+
+
+    # TODO: some sort of chunk detection
+    # then iterate over eg. def chunks and pass off to replacement functions
+    ppp_source = increment(ppp_source)
 
     # TODO: string removal/reinsertion
 
@@ -61,6 +66,6 @@ if __name__ == '__main__':
     fout.close()
 
     # start regular python interpreter and exit
-    # TODO: uncomment
+    # TODO: uncomment to actually run the file
     # subprocess.Popen(['python', compiled_file_path])
     # sys.exit(0)
