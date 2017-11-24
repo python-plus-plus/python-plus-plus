@@ -2,7 +2,7 @@
 
 def hello_world(arg1, arg2=[], arg3=[], arg4=1):
     arg1++
-    func(arg1++)
+    func(arg1--)
     arg2++
     print('hello world')
 
@@ -10,4 +10,5 @@ def hello_world(arg1, arg2=[], arg3=[], arg4=1):
 
 foo = 1
 foo++
+print(foo++)
 print(foo)

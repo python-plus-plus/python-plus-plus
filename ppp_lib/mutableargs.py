@@ -1,2 +1,3 @@
 class PPP_Sentinel_Obj:
-    prop = 'fake'
+    def __init__(self, name):
+    	self.name = name
