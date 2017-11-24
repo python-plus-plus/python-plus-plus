@@ -126,9 +126,9 @@ if __name__ == '__main__':
 
     # TODO: some sort of chunk detection
     # then iterate over eg. def chunks and pass off to replacement functions
-    ppp_source = increment(ppp_source)
     ppp_source = deep_copy(ppp_source)
     ppp_source = mutable_args(ppp_source)
+    ppp_source = increment(ppp_source)
 
     # TODO: string removal/reinsertion
 
