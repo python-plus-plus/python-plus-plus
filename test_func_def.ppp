@@ -1,10 +1,11 @@
+f = 1
+
 #is this even supposed to work
 def foo(arg=[], arg2=[f++]):
     arg.append(1)
     arg2.append(2)
     print(arg, arg2)
 
-f = 1
 foo()
 foo()
 foo([2, 3, 4, 5], [1, 2])
