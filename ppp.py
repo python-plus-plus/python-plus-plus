@@ -22,11 +22,11 @@ def strip_comments(s):
 def increment(str):
     dec_replaced = re.sub(
         r"([A-Za-z_]\w*)\-\-",
-        r"ppp_lib.incdec.PostDecrement('\1', dict(globals(), **locals()))",
+        r"ppp_lib.incdec.PostDecrement('\1', locals(), globals())",
         str)
     inc_replaced = re.sub(
         r"([A-Za-z_]\w*)\+\+",
-        r"ppp_lib.incdec.PostIncrement('\1', dict(globals(), **locals()))",
+        r"ppp_lib.incdec.PostIncrement('\1', locals(), globals())",
         dec_replaced)
     return inc_replaced
 
