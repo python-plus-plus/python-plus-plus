@@ -126,7 +126,7 @@ def mutable_args_func(func_def):
 
 
 def deep_copy(str):
-    mult_pattern = r"\][\t ]*\*[\t ]*(\d+)"
+    mult_pattern = r"\][\t ]*\*[\t ]*([a-zA-Z0-9_-]+)"
     return re.sub(mult_pattern, r" for _ in range(\1)]", str)
 
 
