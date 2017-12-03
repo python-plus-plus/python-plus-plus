@@ -76,7 +76,8 @@ def mutable_args(func_def):
 
             if (match):
                 func_body = re.sub(header_pattern, '', func_def)
-                indent = re.match(r"^([\t ]*)", func_body.split('\n')[0]).group(1)
+                first_indented_line = [e for e in func_body.split("\n") if len(e) > 0 and e[0] == ' '][0]
+                indent = re.match(r"^([\t ]*)", first_indented_line).group(1)
                 arg_check =  "{0}if (type({1}) is ppp_lib.mutableargs.PPP_Sentinel_Obj):\n"
                 arg_check += "{0}    {1} = {2}"
                 arg_check = arg_check.format(indent, arg_name, arg_default_val)
