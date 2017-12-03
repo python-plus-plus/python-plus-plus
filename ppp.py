@@ -31,7 +31,45 @@ def increment(str):
     return inc_replaced
 
 
-def mutable_args(func_def):
+def mutable_args(code_body):
+    """
+    Given the entire code body, it fixes all instances of mutable
+    arguments.
+
+    1. Identify all definitions of functions (not nested, not class methods).
+    2. Call the mutable_args_func method with the header/body of the function.
+    3. Insert in the result.
+    """
+    # Given the limited scope of functions that we're handling, to find 
+    # functions, we just need to find instances of the string 'def '
+
+    # code_lines[function_starts[i] : function_ends[i]] should give us a 
+    # function definition
+    function_starts = []
+    function_ends = []
+    code_lines = code_body.split("\n")
+    line = 0
+    while line < len(code_lines):
+        # If we haven't found the end for the function yet, look for the end.
+        if len(function_starts) > len(function_ends) and not code_lines[line].startswith(' '):
+            function_ends.append(line) 
+
+        # Look for a function start.
+        if code_lines[line].startswith('def '):
+            function_starts.append(line)
+
+        line += 1
+
+    # Iterate over the identified function, modify the functions and replace 
+    # them in the body.
+    for start,end in zip(function_starts, function_ends):
+        func_def = '\n'.join(code_lines[start:end])
+        mod_func_def = mutable_args_func(func_def)
+        code_body = code_body.replace(func_def, mod_func_def)
+
+    return code_body
+
+def mutable_args_func(func_def):
     # TODO: make this code not shit and redundant
     header_pattern = r"def[\t ]*[A-Za-z_]\w*\((?P<args>.*)\):\n"
     header = re.search(header_pattern, func_def)
