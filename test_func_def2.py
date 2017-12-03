@@ -6,7 +6,7 @@ def foo(arg=ppp_lib.mutableargs.PPP_Sentinel_Obj('arg'), arg2=ppp_lib.mutablearg
     if (type(arg) is ppp_lib.mutableargs.PPP_Sentinel_Obj):
         arg = []
     if (type(arg2) is ppp_lib.mutableargs.PPP_Sentinel_Obj):
-        arg2 = [ppp_lib.incdec.PostIncrement('f', dict(globals(), **locals()))]
+        arg2 = [ppp_lib.incdec.PostIncrement('f', locals(), globals())]
     arg.append(1)
     arg2.append(2)
     print(arg, arg2)
@@ -15,7 +15,7 @@ def foo(arg=ppp_lib.mutableargs.PPP_Sentinel_Obj('arg'), arg2=ppp_lib.mutablearg
     if (type(arg) is ppp_lib.mutableargs.PPP_Sentinel_Obj):
         arg = []
     if (type(arg2) is ppp_lib.mutableargs.PPP_Sentinel_Obj):
-        arg2 = [ppp_lib.incdec.PostIncrement('f', dict(globals(), **locals()))]
+        arg2 = [ppp_lib.incdec.PostIncrement('f', locals(), globals())]
     arg.append(1)
     arg2.append(2)
     print(arg, arg2)

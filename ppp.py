@@ -31,13 +31,13 @@ def increment(str):
     return inc_replaced
 
 
-def mutable_args(code_body):
+def function_map(code_body, mod_func):
     """
-    Given the entire code body, it fixes all instances of mutable
-    arguments.
+    Given the entire code body, it identifies all instances of functions and
+    processes them using the mod_func function.
 
     1. Identify all definitions of functions (not nested, not class methods).
-    2. Call the mutable_args_func method with the header/body of the function.
+    2. Call the mod_func function with the header/body of the function.
     3. Insert in the result.
     """
     # Given the limited scope of functions that we're handling, to find 
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     # TODO: some sort of chunk detection
     # then iterate over eg. def chunks and pass off to replacement functions
     ppp_source = deep_copy(ppp_source)
-    ppp_source = mutable_args(ppp_source)
+    ppp_source = function_map(ppp_source, mutable_args_func)
     ppp_source = increment(ppp_source)
 
     # TODO: string removal/reinsertion
@@ -177,5 +177,5 @@ if __name__ == '__main__':
 
     # start regular python interpreter and exit
     # TODO: uncomment to actually run the file
-    # subprocess.Popen(['python', compiled_file_path])
-    # sys.exit(0)
+    subprocess.call('python3 %s' % compiled_file_path, shell=True)
+    sys.exit(0)
