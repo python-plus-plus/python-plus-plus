@@ -1,0 +1,14 @@
+def sum_nested_list(arr, acc):
+  if len(arr) == 0:
+    return acc
+
+  sum = 0
+  for e in arr[0]:
+    if e == -1:
+      return sum_nested_list(arr[1:], acc)
+
+    sum += e
+  return sum_nested_list(arr[1:], acc+sum)
+
+print(sum_nested_list([[1,1,1],[1,1],[1,1]], 0))
+print(sum_nested_list([[1,-1,1],[1,1],[-1,1]], 0))

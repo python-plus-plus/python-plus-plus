@@ -1,0 +1,2 @@
+class NextCall(Exception):
+  pass

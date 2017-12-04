@@ -50,7 +50,8 @@ def function_map(code_body, mod_func):
   line = 0
   while line < len(code_lines):
     # If we haven't found the end for the function yet, look for the end.
-    if len(function_starts) > len(function_ends) and not code_lines[line].startswith(' '):
+    if len(function_starts) > len(function_ends) and len(code_lines[line]) > 0 \
+       and code_lines[line][0] != ' ':
       function_ends.append(line) 
 
     # Look for a function start.
@@ -58,6 +59,9 @@ def function_map(code_body, mod_func):
       function_starts.append(line)
 
     line += 1
+
+  if len(function_starts) > len(function_ends):
+    function_ends.append(line)
 
   # Iterate over the identified function, modify the functions and replace 
   # them in the body.
@@ -130,7 +134,87 @@ def deep_copy(str):
 
 
 def tail_call(func_def):
-  return func_def
+  """
+  Given a function definition, identify all tail self-recursive calls and
+  handle them accordingly.
+  """
+  # Identify the indent amount
+  first_indented_line = [e for e in func_def.split("\n") if len(e) > 0 and e[0] == ' '][0]
+  indent = re.match(r"^([\t ]*)", first_indented_line).group(1)
+
+  # Identify the function name
+  header_pattern = r"def[\t ]*(?P<name>[A-Za-z_]\w*)\(.*\):\n"
+  header = re.search(header_pattern, func_def)
+  func_name = header.group("name")
+
+  # Find (for now only single line) recursive calls. Store their line number iff 
+  # it appears to be a tail recursive call.
+  code_lines = func_def.split("\n")
+  line = 0
+  tail_calls = []
+  while line < len(code_lines):
+    stripped_line = code_lines[line].strip()    
+    line += 1
+
+    # Continue if it doesn't start with a return 
+    if not (stripped_line.startswith("return %s" % func_name) or
+            stripped_line.startswith(func_name)):
+      continue
+
+    # Continue if the line ends in something other than a close paren.
+    # Obviously, this is not robust, but we assume it's sufficient.
+    if not stripped_line.endswith(")"):
+      continue
+
+    # If we've made it this far, add the line number (of cur iteration).
+    tail_calls.append(line-1)
+   
+  # Parse out the parameters (assume no keyword arguments)
+  param_pattern = r"def[\t ]*[A-Za-z_]\w*\((?P<args>.*)\):\n"
+  parameters = re.search(param_pattern, func_def).group('args')
+  # Now process all of the tail calls.    
+  for i in tail_calls:
+    # Retrieve the tail recursive call
+    tail_call_line = code_lines[i]
+ 
+    # Parse out the arguments. Assume no nested brackets, simple functional
+    # call.
+    start_index = tail_call_line.index("(")
+    end_index = tail_call_line.index(")")
+    args = tail_call_line[start_index+1:end_index]
+
+    # Get indent of the tail call line
+    tail_indent = re.match(r"^([\t ]*)", tail_call_line).group(1)
+
+    # Create two lines: 1. updating params, 2. raising a StopIteration error
+    update_line = tail_indent + parameters + " = " + args + "\n"
+    error_line = tail_indent + "raise ppp_lib.tail_call.NextCall"
+
+    # Replace the tail call line with the modified version
+    func_def = func_def.replace(tail_call_line, update_line + error_line)     
+    
+  # Indent all of the function definition (after the header on the first line)
+  code_lines = func_def.split("\n")
+
+  # Indent every line after the header
+  code_lines = [2*indent+line if i > 0 else line for i,line in enumerate(code_lines)]
+ 
+  # Insert a while True as the first line after the header 
+  code_lines.insert(1, indent + "while True:")
+
+  # Insert a try statement as the second line after the header
+  code_lines.insert(2, indent*2 + "try:")
+
+  # Insert a break right after the code. If we've made it this far without a function call,
+  # we would usually exit out without a return statement. Since we don't want to infinite loop
+  # we have to do this by breaking out of the while True loop.
+  code_lines.append(3*indent + "break")
+
+  # The very last lines will be catching the exception and continuing the outer loop.
+  code_lines.append(2*indent + "except ppp_lib.tail_call.NextCall:")
+  code_lines.append(3*indent + "continue")
+
+  return "\n".join(code_lines)
 
 if __name__ == '__main__':
   # TODO: handle additional command line args to .py file
