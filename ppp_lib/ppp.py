@@ -244,7 +244,7 @@ def tail_call(func_def):
 
   return "\n".join(code_lines)
 
-if __name__ == '__main__':
+def main():
   if len(sys.argv) != 2:
     print('Invalid args. Please provide a filename.')
     sys.exit(-1)
