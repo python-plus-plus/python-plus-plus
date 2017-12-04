@@ -15,10 +15,17 @@ import sys
 ppp_lib_imports = "import ppp_lib\n"
 
 def strip_comments(s):
+  """
+  Simple regex to get rid of all comments.
+  """
   return re.sub(r"^[\t ]*\#.*$", '', s, flags=re.MULTILINE)
 
 
 def increment(str):
+  """
+  Replace all increment and decrement operators with calls to our library
+  functions to handle increment and decrements.
+  """
   dec_replaced = re.sub(
     r"([A-Za-z_]\w*)\-\-",
     r"ppp_lib.incdec.PostDecrement('\1', locals(), globals())",
@@ -129,9 +136,12 @@ def mutable_args_func(func_def):
 
 
 def deep_copy(str):
+  """
+  Simple (albeit not very robus) regex to replace all deep copies with
+  list comprehensions.
+  """
   mult_pattern = r"\][\t ]*\*[\t ]*([a-zA-Z0-9_-]+)"
   return re.sub(mult_pattern, r" for _ in range(\1)]", str)
-
 
 def tail_call(func_def):
   """
@@ -217,49 +227,45 @@ def tail_call(func_def):
   return "\n".join(code_lines)
 
 if __name__ == '__main__':
-  # TODO: handle additional command line args to .py file
   if len(sys.argv) != 2:
-    print('invalid args')
+    print('Invalid args. Please provide a filename.')
     sys.exit(-1)
 
   input_file_path = os.path.abspath(sys.argv[1])
 
-  # do some basic sanity checks
-  if (not os.path.isfile(input_file_path)):
-    print('invalid file')
+  # Basic sanity check to ensure argument is a file.
+  if not os.path.isfile(input_file_path):
+    print('Invalid args. Please provide a filename.')
     sys.exit(-1)
 
+  # Ensure we're given a ppp file.
   input_file_basename = os.path.basename(input_file_path)
   filename, input_file_ext = os.path.splitext(input_file_basename)
-  if (input_file_ext != '.ppp'):
-    print('input file not a Python++ file.')
+  if input_file_ext != '.ppp':
+    print('Input file not a Python++ file.')
     sys.exit(-1)
 
+  # Construct the absolute path to the new file.
   compiled_file_path = os.path.join(os.path.dirname(input_file_path), filename + '.py')
 
+  # Read input file.
   fin = open(input_file_path, 'r')
-  fout = open(compiled_file_path, 'w')
-
   ppp_source = ''.join(fin.readlines())
   fin.close()
 
-  # start transforms
+  # Perform transforms.
   ppp_source = strip_comments(ppp_source)
-
-  # TODO: some sort of chunk detection
-  # then iterate over eg. def chunks and pass off to replacement functions
   ppp_source = deep_copy(ppp_source)
   ppp_source = function_map(ppp_source, mutable_args_func)
   ppp_source = function_map(ppp_source, tail_call)
   ppp_source = increment(ppp_source)
 
-  # TODO: string removal/reinsertion
-
+  # Open output file and dump the modified code to it.
+  fout = open(compiled_file_path, 'w')
   fout.write(ppp_lib_imports)
   fout.write(ppp_source)
   fout.close()
 
-  # start regular python interpreter and exit
-  # TODO: uncomment to actually run the file
+  # Pass the output file to the Python3 interpreter.
   subprocess.call('python3 %s' % compiled_file_path, shell=True)
   sys.exit(0)
