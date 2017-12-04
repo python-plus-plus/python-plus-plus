@@ -11,7 +11,6 @@ import sys
 # [A-Za-z_]\w*
 
 
-# TODO: make ppp_lib globally available as an installable package
 ppp_lib_imports = "import ppp_lib\n"
 
 def strip_comments(s):
