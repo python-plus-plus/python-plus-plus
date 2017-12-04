@@ -155,7 +155,7 @@ def mutable_args_func(func_def):
 
 def deep_copy(str):
   """
-  Simple (albeit not very robus) regex to replace all deep copies with
+  Simple (albeit not very robust) regex to replace all deep copies with
   list comprehensions.
   """
   mult_pattern = r"\][\t ]*\*[\t ]*([a-zA-Z0-9_-]+)"
