@@ -80,24 +80,33 @@ def function_map(code_body, mod_func):
   return code_body
 
 def mutable_args_func(func_def):
-  # TODO: make this code not shit and redundant
+  """
+  Handle mutable defaulted parameters in the function definition.
+  """
+  # Search for the arguments in the function definition.
   header_pattern = r"def[\t ]*[A-Za-z_]\w*\((?P<args>.*)\):\n"
   header = re.search(header_pattern, func_def)
+  header = re.search(header_pattern, func_def)
   arg_string = header.group('args')
-  args = arg_string.split(',')
-  args = [s.strip() for s in args if len(s.strip()) > 0]
+  args = [s.strip() for s in arg_string.split(',') if len(s.strip()) > 0]
 
+  # Iterate over the arguments and modify as needed.
   new_args = []
   for arg in args:
+    # If this is not a keyword argument, continue without changes.
     arg_parts = [s.strip() for s in arg.split('=')]
     if len(arg_parts) == 2:
       arg_name = arg_parts[0]
       arg_default_val = arg_parts[1]
 
+      # Identify if the default value belongs to the set of mutable objects that
+      # we're handling.
       mutable_arg_pattern = r"\[.*\]|\{.*\}"
       match = re.match(mutable_arg_pattern, arg_default_val)
 
-      if (match):
+      # If this is an immutable default value, continue as is.
+      if match:
+        # Else use our ppp_lib mutable type to construct a None-like object.
         arg_val = re.sub(
           r"\[.*\]|\{.*\}",
           'ppp_lib.mutableargs.PPP_Sentinel_Obj(\'{0}\')'.format(arg_name),
@@ -108,29 +117,38 @@ def mutable_args_func(func_def):
     else:
       new_args.append(arg_parts[0])
 
-  # print(new_args)
+  # Construct the modified header.
   modified_header = header.group(0).replace(arg_string, ', '.join(new_args))
 
-  # add checks to body
+  # Using our "None"-type we add checks to the body to set the parameters to their
+  # default values if an overriden value is not provided.
   func_body = re.sub(header_pattern, '', func_def)
   arg_checks = []
+
+  # Find the indent amount used in the function definition.
+  first_indented_line = [e for e in func_body.split("\n") if len(e) > 0 and e[0] == ' '][0]
+  indent = re.match(r"^([\t ]*)", first_indented_line).group(1)
   for arg in args:
+    # If this is a keyword argument with a mutable default value, we add 
+    # a check to the body for it.
     arg_parts = [s.strip() for s in arg.split('=')]
     if len(arg_parts) == 2:
       arg_name = arg_parts[0]
       arg_default_val = arg_parts[1]
 
+      # Check if it's mutable.
       mutable_arg_pattern = r"\[.*\]|\{.*\}"
       match = re.match(mutable_arg_pattern, arg_default_val)
-
       if match:
-        first_indented_line = [e for e in func_body.split("\n") if len(e) > 0 and e[0] == ' '][0]
-        indent = re.match(r"^([\t ]*)", first_indented_line).group(1)
+        # If the type of the defaulted value is our "None"-type, then we set 
+        # it's value to be that of it's original defaulted value.
         arg_check =  "{0}if (type({1}) is ppp_lib.mutableargs.PPP_Sentinel_Obj):\n"
         arg_check += "{0}    {1} = {2}"
         arg_check = arg_check.format(indent, arg_name, arg_default_val)
         arg_checks.append(arg_check)
 
+  # Add the new checks to the function body, prepend the header and return the
+  # modified function.
   func_body = '\n'.join(arg_checks) + '\n' + func_body
   return modified_header + func_body
 
