@@ -85,7 +85,6 @@ def mutable_args_func(func_def):
   # Search for the arguments in the function definition.
   header_pattern = r"def[\t ]*[A-Za-z_]\w*\((?P<args>.*)\):\n"
   header = re.search(header_pattern, func_def)
-  header = re.search(header_pattern, func_def)
   arg_string = header.group('args')
   args = [s.strip() for s in arg_string.split(',') if len(s.strip()) > 0]
 
